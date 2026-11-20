@@ -11,7 +11,7 @@ an open path. For example, 0x0A (1010) implies walls
 on the West and East boundaries of the cell. We give
 five examples below:
 +---+     +---+     +   +     +   +     +---+
-          |         |   |         |     |   
+          |         |   |         |     |
 +---+     +---+     +   +     +---+     +   +
 0x05      0x0D      0x0A      0x06      0x09
 
@@ -27,22 +27,24 @@ The following are the objectives:
 - Print the total number of steps taken TODO
 */
 
+#include <basicgol.h>
+
 #include "maze.h"
 #include "io.h"
 #include "solver.h"
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Error: expecting the maze filename to process. Quitting...\n");
-        return 1;
-    }
+FUNCAO INTEIRO main(INTEIRO argc, CARACTERE *argv[]) {
+    SE argc != 2 ENTAO
+        ESCREVAL("Error: expecting the maze filename to process. Quitting...");
+        RETORNE 1;
+    FIM_SE
 
     Maze maze;
     read_maze_from_file(&maze, argv[1]);
     encode_maze(&maze);
-    
+
     solve_maze(&maze);
     free_maze(&maze);
 
-    return 0;
+    RETORNE 0;
 }

@@ -1,6 +1,32 @@
-## Overview
+# BASICGOL examples
 
-This repo includes a set of examples for beginners to learn C. Each folder can be considered as separate project, that is, it has its own `main()` function. Hence, C files within a folder (and those in its sub-folders) have to be compiled and linked together.
+Each folder is a standalone [BASICGOL](https://github.com/havaianasdestruido/BASICGOL) program. The `.c` and `.h` extensions are intentional: a C11 compiler expands keywords such as `INICIO`, `PARA`, `SE` and `ESCREVAL` through `basicgol.h`. Native pointers, library calls and platform APIs remain available where an example needs them.
+
+## Build and run
+
+From the repository root, with Git, GNU Make and a C11 compiler (on Windows, use the MSYS2 UCRT64 shell):
+
+```sh
+git clone https://github.com/havaianasdestruido/BASICGOL .deps/BASICGOL
+git -C .deps/BASICGOL checkout ffcf62bc3b222bed213a8e330773d3307683595e
+make                  # build all examples for this platform
+make palindrome       # or build a single example
+make check            # build and run smoke tests
+./build/palindrome radar
+(cd maze && ../build/maze m1.txt)
+```
+
+Set `BASICGOL_DIR` to use an existing BASICGOL checkout instead. These examples need its headers but not its runtime archive. Run examples that read bundled files from their own folders. `snake` uses the Windows console and is excluded from non-Windows builds. The `arrays` functions are intentionally unfinished exercises.
+
+To cross-compile all 28 examples for 64-bit Windows from Linux with Zig 0.13.0, use:
+
+```sh
+make OS=Windows_NT CC='zig cc -target x86_64-windows-gnu'
+```
+
+This produces `build/*.exe` without replacing the Linux binaries. To play Snake, run `build/snake.exe` in a Windows console; use WASD to move and Q to quit.
+
+## Overview
 
 These C concepts can be studied in the following programs:
 * Pass by reference: `average`, `noduplicates`, `reverse`, `swap`

@@ -2,26 +2,32 @@
 Checks if a given word is a palindrome.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
+#include <basicgol.h>
 
-bool is_palindrome(char const *word) {
-    if (word == NULL) return false;
-    
-    int len = strlen(word);
-    for (int i = 0;  i < len/2; i++) {
-        if (word[i] != word[len-i-1]) return false;
+FUNCAO LOGICO is_palindrome(CARACTERE const *word) {
+    INTEIRO i;
+    SE word == NULL ENTAO
+        RETORNE FALSO;
+    FIM_SE
+
+    INTEIRO len = strlen(word);
+    PARA(i, 0, len/2 - 1) {
+        SE word[i] != word[len-i-1] ENTAO
+            RETORNE FALSO;
+        FIM_SE
     }
-    return true;
+    RETORNE VERDADEIRO;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Error: expecting input word. Quitting...\n");
-        return 1;
-    }
+FUNCAO INTEIRO main(INTEIRO argc, CARACTERE *argv[]) {
+    SE argc != 2 ENTAO
+        ESCREVAL("Error: expecting input word. Quitting...");
+        RETORNE 1;
+    FIM_SE
 
-    if (is_palindrome(argv[1])) printf("Word is a palindrome!\n");
-    else printf("Word is a NOT palindrome!\n");
+    SE is_palindrome(argv[1]) ENTAO
+        ESCREVAL("Word is a palindrome!");
+    SENAO
+        ESCREVAL("Word is a NOT palindrome!");
+    FIM_SE
 }

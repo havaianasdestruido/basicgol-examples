@@ -3,24 +3,22 @@ Prints the Pascal's Triangle.
 See https://en.wikipedia.org/wiki/Pascal%27s_triangle
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <basicgol.h>
 
 #define NUM 15
 
-int main() {
-    int prev[NUM] = {};
-    int curr[NUM] = {};    
+INICIO
+    INTEIRO i, j;
+    INTEIRO prev[NUM] = {0};
+    INTEIRO curr[NUM] = {0};
 
-    for (int i = 0; i < NUM; i++) {
-        for (int j = 0; j <= i; j++) {
-            curr[j] = (j == 0 || j == i) ? 
+    PARA(i, 0, NUM - 1) {
+        PARA(j, 0, i) {
+            curr[j] = (j == 0 OU j == i) ?
                        1 : prev[j-1] + prev[j];
-            printf("%4d ", curr[j]);
+            ESCREVA_FMT("%4d ", curr[j]);
         }
-        printf("\n");
+        ESCREVA_LINHA();
         memcpy(prev, curr, sizeof(curr));
     }
-}
-
-
+FIM

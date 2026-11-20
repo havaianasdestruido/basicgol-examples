@@ -2,37 +2,39 @@
 This consists of a few exercises to practice the handling of arrays.
 */
 
+#include <basicgol.h>
+
 // Take two arrays and find items common to both not necessarily in the same index
-void find_commons(int a[], int b[], int size) {
+PROCEDIMENTO find_commons(INTEIRO a[], INTEIRO b[], INTEIRO size) {
     // TODO Find common items and print here
 }
 
 // Take the average of n consecutive items
-void find_moving_average(int a[], int size, int n) {
+PROCEDIMENTO find_moving_average(INTEIRO a[], INTEIRO size, INTEIRO n) {
     // TODO Calculate and print the moving averages here
 }
 
 // Sort an array of integers from lowest to highest values
-void sort_nums(int a[], int size) {
+PROCEDIMENTO sort_nums(INTEIRO a[], INTEIRO size) {
     // TODO Sort and print the sorted array here
 }
 
 // Sort an array of strings in ASCII order
-void sort_strings(char * a[], int size) {
+PROCEDIMENTO sort_strings(CARACTERE * a[], INTEIRO size) {
     // TODO Sort and print the sorted array here
 }
 
-int main() {
-    int a[] = { 2, 3, 7, 3, 4, 3, 4, 5, 6, 1 };
-    int b[] = { 7, 2, 10, 2, 7, 4, 9, 4, 9, 8 };
-    
-    find_commons(a, b, sizeof(a) / sizeof(int));
+INICIO
+    INTEIRO a[] = { 2, 3, 7, 3, 4, 3, 4, 5, 6, 1 };
+    INTEIRO b[] = { 7, 2, 10, 2, 7, 4, 9, 4, 9, 8 };
 
-    find_moving_average(a, sizeof(a) / sizeof(int), 3);
+    find_commons(a, b, TAMANHO_VETOR(a));
 
-    sort_nums(b, sizeof(b) / sizeof(int));
+    find_moving_average(a, TAMANHO_VETOR(a), 3);
 
-    char * s[] = {
+    sort_nums(b, TAMANHO_VETOR(b));
+
+    CARACTERE * s[] = {
         "hello",
         "world",
         "kitty",
@@ -42,7 +44,7 @@ int main() {
         "yellow",
         "caller"
     };
-    sort_strings(s, sizeof(s) / sizeof(char*));
+    sort_strings(s, TAMANHO_VETOR(s));
 
-    return 0;
-}
+    RETORNE 0;
+FIM

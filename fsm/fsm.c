@@ -12,66 +12,65 @@ day will also be sunny. When a day is rainy, 40% of the time
 the next day will be cloudy.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <basicgol.h>
+
 #include <time.h>
 
 #define NUM_STEPS 10000
 
-typedef enum weather {
+ENUMERACAO(Weather)
     Sunny = 0,
     Cloudy,
     Rainy,
     NUM_STATES
-} Weather;
+FIM_ENUMERACAO(Weather);
 
-char * WeatherStr[NUM_STATES] = {
+CARACTERE * WeatherStr[NUM_STATES] = {
     "Sunny", "Cloudy", "Rainy"
 };
 
-
-int main() {
+INICIO
+    INTEIRO i, j;
     // FSM transition probability matrix
-    float transitions[NUM_STATES][NUM_STATES] = {
+    REAL_CURTO transitions[NUM_STATES][NUM_STATES] = {
         { 0.5, 0.3, 0.2 },
         { 0.1, 0.6, 0.3 },
         { 0.5, 0.4, 0.1 }
     };
 
     // Make a matrix of cumulative transitions
-    float cumulatives[NUM_STATES][NUM_STATES];
-    for (int i = 0; i < NUM_STATES; i++) {
-        float sum = 0;
-        for (int j = 0; j < NUM_STATES; j++) {
+    REAL_CURTO cumulatives[NUM_STATES][NUM_STATES];
+    PARA(i, 0, NUM_STATES - 1) {
+        REAL_CURTO sum = 0;
+        PARA(j, 0, NUM_STATES - 1) {
             sum += transitions[i][j];
             cumulatives[i][j] = sum;
         }
-        if (sum != 1.0) {
-            printf("Warning: transitions probabilities from [%s] state "
+        SE sum != 1.0 ENTAO
+            ESCREVA_FMT("Warning: transitions probabilities from [%s] state "
                    "don't add up to 1.0.\n", WeatherStr[i]);
-        }
+        FIM_SE
     }
 
     srand(time(NULL));
 
     Weather curr_state = Sunny;
-    int counts[NUM_STATES] = {};
+    INTEIRO counts[NUM_STATES] = {0};
 
-    for (int i = 0; i < NUM_STEPS; i++) {
-        float rn = (float)(rand()) / RAND_MAX;
-        for (int j = 0; j < NUM_STATES; j++) {
-            if (rn < cumulatives[curr_state][j]) {
+    PARA(i, 0, NUM_STEPS - 1) {
+        REAL_CURTO rn = (REAL_CURTO)(rand()) / RAND_MAX;
+        PARA(j, 0, NUM_STATES - 1) {
+            SE rn < cumulatives[curr_state][j] ENTAO
                 curr_state = j;
-                break;
-            }
+                PARE;
+            FIM_SE
         }
         counts[curr_state]++;
     }
 
-    for (int j = 0; j < NUM_STATES; j++) {
-        printf("%6s: %4.1f %%\n", WeatherStr[j], counts[j] * 100.0 / NUM_STEPS);
+    PARA(j, 0, NUM_STATES - 1) {
+        ESCREVA_FMT("%6s: %4.1f %%\n", WeatherStr[j], counts[j] * 100.0 / NUM_STEPS);
     }
 
-    return 0;
-}
-
+    RETORNE 0;
+FIM

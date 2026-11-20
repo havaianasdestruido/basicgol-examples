@@ -37,12 +37,10 @@ TODO (some improvements to consider)
 - Extend the code to run on POSIX/Linux terminals as well
 */
 
+#include <basicgol.h>
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <time.h>
+#include <ctype.h>
 #include <conio.h>
 #include <windows.h>
 
@@ -50,68 +48,69 @@ TODO (some improvements to consider)
 #define WIDTH 30
 #define HEIGHT 20
 
-typedef struct snake {
-    int x[WIDTH * HEIGHT]; // rows
-    int y[WIDTH * HEIGHT]; // cols
-    int len; // including the head at (x[0], y[0])
-} Snake;
+REGISTRO(Snake)
+    INTEIRO x[WIDTH * HEIGHT]; // rows
+    INTEIRO y[WIDTH * HEIGHT]; // cols
+    INTEIRO len; // including the head at (x[0], y[0])
+FIM_REGISTRO(Snake);
 Snake snake;
 
-typedef enum dir {
+ENUMERACAO(Direction)
     STOP = 0,
     LEFT,
     RIGHT,
     UP,
     DOWN
-} Direction;
+FIM_ENUMERACAO(Direction);
 Direction dir;
 
-char *fruits[] = {"🍎", "🍌", "🍇", "🍉", "🥝", "🍍", "🍐", "🍊"};
-int num_fruits = sizeof(fruits)/sizeof(char*);
-typedef struct fruit {
-    int x, y; // only one fruit at a time
-    int which;
-} Fruit;
+CARACTERE *fruits[] = {"🍎", "🍌", "🍇", "🍉", "🥝", "🍍", "🍐", "🍊"};
+INTEIRO num_fruits = TAMANHO_VETOR(fruits);
+REGISTRO(Fruit)
+    INTEIRO x, y; // only one fruit at a time
+    INTEIRO which;
+FIM_REGISTRO(Fruit);
 Fruit fruit;
 
-bool gameOver;
-int score;
-int tick_ms = 100;
+LOGICO gameOver;
+INTEIRO score;
+INTEIRO tick_ms = 100;
 
-
-void create_fruit() {
-    bool overlaps = true;
-    while (overlaps) {
-        overlaps = false;
+PROCEDIMENTO create_fruit() {
+    INTEIRO i;
+    LOGICO overlaps = VERDADEIRO;
+    ENQUANTO overlaps FACA
+        overlaps = FALSO;
         fruit.x = rand() % HEIGHT;
         fruit.y = rand() % WIDTH;
-        for (int i = 0; i < snake.len; i++) {
-            if (fruit.x == snake.x[i] && fruit.y == snake.y[i]) {
-                overlaps = true;
-                break;
-            }
+        PARA(i, 0, snake.len - 1) {
+            SE fruit.x == snake.x[i] E fruit.y == snake.y[i] ENTAO
+                overlaps = VERDADEIRO;
+                PARE;
+            FIM_SE
         }
-    }
+    FIM_ENQUANTO
     fruit.which = rand() % num_fruits;
 }
 
-void init_game() {
-    gameOver = false;
+PROCEDIMENTO init_game() {
+    gameOver = FALSO;
 
     srand(time(NULL));
-    
+
     dir = STOP; // game begins only when a key is pressed
-    
+
     snake.x[0] = HEIGHT / 2;
     snake.y[0] = WIDTH / 2;
     snake.len = 1;
 
     create_fruit();
-    
+
     score = 0;
 }
 
-void draw_board() {
+PROCEDIMENTO draw_board() {
+    INTEIRO i, j, k;
     // Reset cursor to top-left to reduce flicker
     // TODO Improve this code to completely eliminate flicker
     COORD cursorPosition;
@@ -119,117 +118,130 @@ void draw_board() {
     cursorPosition.Y = 0;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 
-    char brick[] = "🧱";
+    CARACTERE brick[] = "🧱";
 
     // Top wall
-    for (int i = 0; i < WIDTH + 2; i++) printf(brick);
-    printf("\n");
+    PARA(i, 0, WIDTH + 1) ESCREVA(brick);
+    ESCREVA_LINHA();
 
-    for (int i = 0; i < HEIGHT; i++) { // within the walls
-        printf(brick); // left wall
-        for (int j = 0; j < WIDTH; j++) { // within the walls
-            if (i == snake.x[0] && j == snake.y[0]) {
-                printf("🐸"); // actually a frog head!
-            } else if (i == fruit.x && j == fruit.y) {
-                printf(fruits[fruit.which]);
-            } else {
-                bool is_tail = false;
-                for (int k = 1; k < snake.len; k++) {
-                    if (i == snake.x[k] && j == snake.y[k]) {
-                        printf("🟢"); // snake body
-                        is_tail = true;
-                    }
+    PARA(i, 0, HEIGHT - 1) { // within the walls
+        ESCREVA(brick); // left wall
+        PARA(j, 0, WIDTH - 1) { // within the walls
+            SE i == snake.x[0] E j == snake.y[0] ENTAO
+                ESCREVA("🐸"); // actually a frog head!
+            SENAO_SE i == fruit.x E j == fruit.y ENTAO
+                ESCREVA(fruits[fruit.which]);
+            SENAO
+                LOGICO is_tail = FALSO;
+                PARA(k, 1, snake.len - 1) {
+                    SE i == snake.x[k] E j == snake.y[k] ENTAO
+                        ESCREVA("🟢"); // snake body
+                        is_tail = VERDADEIRO;
+                    FIM_SE
                 }
-                if (!is_tail) printf("⬜");
-            }
+                SE NAO is_tail ENTAO
+                    ESCREVA("⬜");
+                FIM_SE
+            FIM_SE
         }
-        printf(brick); // right wall
-        printf("\n");
+        ESCREVA(brick); // right wall
+        ESCREVA_LINHA();
     }
 
     // Bottom wall
-    for (int i = 0; i < WIDTH + 2; i++) printf(brick);
-    printf("\n");
+    PARA(i, 0, WIDTH + 1) ESCREVA(brick);
+    ESCREVA_LINHA();
 
     // Print score
-    printf("\nScore: %d; Snake length: %d\n", score, snake.len);
-    printf("Use WASD keys to move. Press Q to quit.\n");
+    ESCREVA_FMT("\nScore: %d; Snake length: %d\n", score, snake.len);
+    ESCREVAL("Use WASD keys to move. Press Q to quit.");
 }
 
-void process_user_input() {
-    if (_kbhit()) {
-        switch (tolower(_getch())) {
+PROCEDIMENTO process_user_input() {
+    SE _kbhit() ENTAO
+        ESCOLHA(tolower(_getch()))
             // if statements below => we can't reverse from current dir
-            case 'a':
-                if (dir != RIGHT) dir = LEFT;
-                break;
-            case 'd':
-                if (dir != LEFT) dir = RIGHT;
-                break;
-            case 'w':
-                if (dir != DOWN) dir = UP;
-                break;
-            case 's':
-                if (dir != UP) dir = DOWN;
-                break;
-            case 'q':
+            CASO 'a':
+                SE dir != RIGHT ENTAO
+                    dir = LEFT;
+                FIM_SE
+                PARE;
+            CASO 'd':
+                SE dir != LEFT ENTAO
+                    dir = RIGHT;
+                FIM_SE
+                PARE;
+            CASO 'w':
+                SE dir != DOWN ENTAO
+                    dir = UP;
+                FIM_SE
+                PARE;
+            CASO 's':
+                SE dir != UP ENTAO
+                    dir = DOWN;
+                FIM_SE
+                PARE;
+            CASO 'q':
                 gameOver = 1;
-                break;
-        }
-    }
+                PARE;
+        FIM_ESCOLHA
+    FIM_SE
 }
 
-void update_board() {
+PROCEDIMENTO update_board() {
     // Return if there's nothing to update
-    if (gameOver || dir == STOP) return;
+    SE gameOver OU dir == STOP ENTAO
+        RETORNE;
+    FIM_SE
 
     // Fruit consumption
-    if (snake.x[0] == fruit.x && snake.y[0] == fruit.y) {
+    SE snake.x[0] == fruit.x E snake.y[0] == fruit.y ENTAO
         score += 10;
 
         snake.x[snake.len] = snake.x[snake.len-1];
         snake.y[snake.len] = snake.y[snake.len-1];
         snake.len++;
-        
-        create_fruit();    
-    }
+
+        create_fruit();
+    FIM_SE
 
     // Move the body
-    for (int i = snake.len; i > 1; i--) {
+    for (INTEIRO i = snake.len; i > 1; i--) {
         snake.x[i-1] = snake.x[i-2];
         snake.y[i-1] = snake.y[i-2];
     }
 
     // Move the head
-    switch (dir) {
-        case LEFT:  snake.y[0]--; break;
-        case RIGHT: snake.y[0]++; break;
-        case UP:    snake.x[0]--; break;
-        case DOWN:  snake.x[0]++; break;
-        default: break;
-    }
+    ESCOLHA(dir)
+        CASO LEFT:  snake.y[0]--; PARE;
+        CASO RIGHT: snake.y[0]++; PARE;
+        CASO UP:    snake.x[0]--; PARE;
+        CASO DOWN:  snake.x[0]++; PARE;
+        CONTRARIO: PARE;
+    FIM_ESCOLHA
 
     // Wall collision
-    if (snake.x[0] >= HEIGHT || snake.x[0] < 0 || snake.y[0] >= WIDTH || snake.y[0] < 0)
-        gameOver = true;
+    SE snake.x[0] >= HEIGHT OU snake.x[0] < 0 OU snake.y[0] >= WIDTH OU snake.y[0] < 0 ENTAO
+        gameOver = VERDADEIRO;
+    FIM_SE
 
     // Self-collision
-    for (int i = 1; !gameOver && i < snake.len; i++) {
-        if (snake.x[i] == snake.x[0] && snake.y[i] == snake.y[0]) {
-            gameOver = true;
-            break;
-        }
+    for (INTEIRO i = 1; NAO gameOver E i < snake.len; i++) {
+        SE snake.x[i] == snake.x[0] E snake.y[i] == snake.y[0] ENTAO
+            gameOver = VERDADEIRO;
+            PARE;
+        FIM_SE
     }
 }
 
-int main() {
+INICIO
     init_game();
-    while (!gameOver) {
+    ENQUANTO NAO gameOver FACA
         draw_board();
         process_user_input();
         update_board();
         Sleep(tick_ms);
-    }
-    printf("\nGame Over! Final Score: %d\n", score);
-    return 0;
-}
+    FIM_ENQUANTO
+    ESCREVA_FMT("\nGame Over! Final Score: %d\n", score);
+    RETORNE 0;
+FIM

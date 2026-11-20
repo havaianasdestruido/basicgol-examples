@@ -7,45 +7,44 @@ Example arguments:
 40.1 F
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <basicgol.h>
 
-float cel_to_fah(float temp_in_C) {
-    float temp_in_fah;
+FUNCAO REAL_CURTO cel_to_fah(REAL_CURTO temp_in_C) {
+    REAL_CURTO temp_in_fah;
     temp_in_fah = (temp_in_C * 9/5) + 32;
-    return temp_in_fah;
+    RETORNE temp_in_fah;
 }
 
-float fah_to_cel(float temp_in_F) {
-    float temp_in_cel;
+FUNCAO REAL_CURTO fah_to_cel(REAL_CURTO temp_in_F) {
+    REAL_CURTO temp_in_cel;
     temp_in_cel = (temp_in_F - 32) * 5/9;
-    return temp_in_cel;
+    RETORNE temp_in_cel;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Error: expecting exactly 2 program arguments. Quitting...\n");
-        return 1;
-    }
-   
-    float temperature = (float)atof(argv[1]);
-    char unit = argv[2][0];
+FUNCAO INTEIRO main(INTEIRO argc, CARACTERE *argv[]) {
+    SE argc != 3 ENTAO
+        ESCREVAL("Error: expecting exactly 2 program arguments. Quitting...");
+        RETORNE 1;
+    FIM_SE
+
+    REAL_CURTO temperature = (REAL_CURTO)atof(argv[1]);
+    CARACTERE unit = argv[2][0];
 
     // Old code to prompt for user input
     // printf("Enter temperature (C or F): ");
     // scanf("%f %c", &temperature, &unit);
 
-    switch (unit) {
-        case 'C':
-            printf("%f F\n", cel_to_fah(temperature));
-            break;
-        case 'F':
-            printf("%f C\n", fah_to_cel(temperature));
-            break;
-        default:
-            printf("Error: unrecognized temperature unit. Only celsius or fahrenheit allowed.\n");
-            break;
-    }
+    ESCOLHA(unit)
+        CASO 'C':
+            ESCREVA_FMT("%f F\n", cel_to_fah(temperature));
+            PARE;
+        CASO 'F':
+            ESCREVA_FMT("%f C\n", fah_to_cel(temperature));
+            PARE;
+        CONTRARIO:
+            ESCREVAL("Error: unrecognized temperature unit. Only celsius or fahrenheit allowed.");
+            PARE;
+    FIM_ESCOLHA
 
-    return 0;
+    RETORNE 0;
 }

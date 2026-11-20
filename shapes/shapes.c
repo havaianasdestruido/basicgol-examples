@@ -3,10 +3,7 @@ A few examples to practice handling of strings and printf().
 In these examples we print various shapes of letters or digits.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
+#include <basicgol.h>
 
 /*
 a
@@ -16,13 +13,14 @@ abcd
 abcde
 abcdef
 */
-void abcdef() {
-    char data[] = "abcdef";
-    char excess[sizeof(data)] = {};
+PROCEDIMENTO abcdef() {
+    INTEIRO i;
+    CARACTERE data[] = "abcdef";
+    CARACTERE excess[sizeof(data)] = {0};
 
-    for (int i = 0; i < 6; i++) {
+    PARA(i, 0, 5) {
         excess[i] = data[i];
-        printf("%s\n", excess);
+        ESCREVA_FMT("%s\n", excess);
     }
 }
 
@@ -37,29 +35,31 @@ void abcdef() {
  234567898765432
 12345678987654321
 */
-void numbers() {
+PROCEDIMENTO numbers() {
+    INTEIRO i, j;
     // In this code, we treats the digits as char, not int
-    char data[] = "12345678987654321";
+    CARACTERE data[] = "12345678987654321";
 
     // Solution 1: each digit is printed separately,
     // first digit is printed with extra left spaces
-    for (int i = 0; i < 9; i++) { // 0-indexed row num
-        for (int j = -i; j < i+1; j++) { // loop for number of chars in row
+    PARA(i, 0, 8) { // 0-indexed row num
+        PARA(j, -i, i) { // loop for number of chars in row
             // Example: 898: i==1 and j is [-1, 0, 1]
-            if (j == -i) {
+            SE j == -i ENTAO
                 // for first char in row add left padding
-                char format[4];
+                CARACTERE format[4];
                 sprintf(format, "%%%dc\0", 9+j);
-                printf(format, data[8+j]);
-            }
-            else printf("%c", data[8+j]);
+                ESCREVA_FMT(format, data[8+j]);
+            SENAO
+                ESCREVA_FMT("%c", data[8+j]);
+            FIM_SE
         }
-        printf("\n");
+        ESCREVA_LINHA();
     }
 
     // Solution 2: all digits in a row are printed together
     // along with extra left spaces
-    for (int i = 0; i < 9; i++) {
+    PARA(i, 0, 8) {
         /*
         i   #spaces  #digits   #chars   format
             8-i      2*i+1     i+9
@@ -67,12 +67,12 @@ void numbers() {
         1 : 7        3         7        %10s\n
         2 : 6        5         6        %11s\n
         */
-        char num[sizeof(data)] = {};
+        CARACTERE num[sizeof(data)] = {0};
         strncpy(num, data + 8 - i, 2*i + 1);
 
-        char format[6] = {};
+        CARACTERE format[6] = {0};
         sprintf(format , "%%%ds\n", i + 9);
-        printf(format, num);
+        ESCREVA_FMT(format, num);
     }
 
 }
@@ -86,13 +86,14 @@ D     D
   F F
    G
 */
-void diamond() {
+PROCEDIMENTO diamond() {
+    INTEIRO i, s, k, m;
     // Solution 1: We use the symmetry around 'D'.
     // The beauty of this code is 'center' variable can be
     // and the rest of the code will work.
-    char center = 'D';
-    int depth = center - 'A';
-    for (int i = -depth; i <= depth; i++) {
+    CARACTERE center = 'D';
+    INTEIRO depth = center - 'A';
+    PARA(i, -depth, depth) {
         /*
          i  #spaces letter  #spaces  letter
         -3  3       A
@@ -103,105 +104,100 @@ void diamond() {
          2  2       F       1        F
          3  3       G
         */
-        int abs_val = i < 0 ? -i : i; // get absolute value, or call abs() of math.h
-        char format[5];
+        INTEIRO abs_val = i < 0 ? -i : i; // get absolute value, or call abs() of math.h
+        CARACTERE format[5];
 
         sprintf(format, "%%%dc\0", abs_val+1);
-        printf(format, center + i);
+        ESCREVA_FMT(format, center + i);
 
-        if (abs_val != depth) {
+        SE abs_val != depth ENTAO
             sprintf(format, "%%%dc\0", 2*(depth-1-abs_val)+2);
-            printf(format, center + i);
-        }
-        printf("\n");
+            ESCREVA_FMT(format, center + i);
+        FIM_SE
+        ESCREVA_LINHA();
     }
 
     // Solution 2: Use formulae for left and center spaces
     // len/2 points to widest part of the diamond
     // abs(len/2-i) measures the distance from the widest part
     // We can add more chars to data[] and this code will still work
-    char data[]="ABCDEFG";
-    int len = strlen(data);
+    CARACTERE data[]="ABCDEFG";
+    INTEIRO len = strlen(data);
 
-    for (int i = 0; i < len; i++) {
+    PARA(i, 0, len - 1) {
         // Left spaces
-        for (int s = 0; s < abs(len/2-i); s++) {
-            printf(" ");
+        for (INTEIRO s = 0; s < abs(len/2-i); s++) {
+            ESCREVA(" ");
         }
 
-        if (i != 0 && i != len-1) {
-            printf("%c", data[i]);
-        }
+        SE i != 0 E i != len-1 ENTAO
+            ESCREVA_FMT("%c", data[i]);
+        FIM_SE
 
         // Center spaces
-        for (int s = 0; s < len-2-2*abs(len/2-i); s++) {
-            printf(" ");
+        for (INTEIRO s = 0; s < len-2-2*abs(len/2-i); s++) {
+            ESCREVA(" ");
         }
 
-        printf("%c\n", data[i]);
+        ESCREVA_FMT("%c\n", data[i]);
     }
 
     // Solution 3: Works but code is long and hard to maintain.
     {
-        char data[]="ABBCCDDEEFFG";
-        for (int i = 0; i < strlen(data); i++) {
+        CARACTERE data[]="ABBCCDDEEFFG";
+        for (INTEIRO i = 0; i < strlen(data); i++) {
             // Leading spaces
-            for (int s = 3; s > i; s--) {
-                printf(" ");
+            for (INTEIRO s = 3; s > i; s--) {
+                ESCREVA(" ");
             }
 
-            if (i==0) { // diamond start point
-                printf("%c\n", data[0]);
-            }
-            else if(i%2 != 0 && i < 6) { // diamond opening
-                printf("%c", data[i]);
-                for (int s = 0; s < i; s++) {
-                    printf(" ");
+            SE i==0 ENTAO // diamond start point
+                ESCREVA_FMT("%c\n", data[0]);
+            SENAO_SE i%2 != 0 E i < 6 ENTAO // diamond opening
+                ESCREVA_FMT("%c", data[i]);
+                PARA(s, 0, i - 1) {
+                    ESCREVA(" ");
                 }
-                printf("%c\n", data[i]);
-            }
-            else if(i%2 != 0 && i > 6 && i < 11) { // diamond closing
-                if (i==7) {
-                    for (int k = 6; k < i; k++) {
-                        printf(" ");
+                ESCREVA_FMT("%c\n", data[i]);
+            SENAO_SE i%2 != 0 E i > 6 E i < 11 ENTAO // diamond closing
+                SE i==7 ENTAO
+                    PARA(k, 6, i - 1) {
+                        ESCREVA(" ");
                     }
-                    printf("%c", data[i]);
-                    for (int l = 10; l > i; l--) {
-                        printf(" ");
+                    ESCREVA_FMT("%c", data[i]);
+                    for (INTEIRO l = 10; l > i; l--) {
+                        ESCREVA(" ");
                     }
-                    printf("%c\n", data[i+1]);
+                    ESCREVA_FMT("%c\n", data[i+1]);
+                SENAO_SE i==9 ENTAO
+                    PARA(k, 7, i - 1) {
+                        ESCREVA(" ");
+                    }
+                    ESCREVA_FMT("%c", data[i]);
+                    for (INTEIRO l = 10; l>i; l--) {
+                        ESCREVA(" ");
+                    }
+                    ESCREVA_FMT("%c\n", data[i+1]);
+                FIM_SE
+            SENAO_SE i==11 ENTAO // diamond end point
+                PARA(m, 0, 2) {
+                    ESCREVA(" ");
                 }
-                else if(i==9) {
-                    for (int k = 7; k < i; k++) {
-                        printf(" ");
-                    }
-                    printf("%c", data[i]);
-                    for (int l = 10; l>i; l--) {
-                        printf(" ");
-                    }
-                    printf("%c\n", data[i+1]);
-                }
-            }
-            else if(i==11) { // diamond end point
-                for (int m = 0; m < 3; m++){
-                    printf(" ");
-                }
-                printf("%c\n", data[i]);
-            }
+                ESCREVA_FMT("%c\n", data[i]);
+            FIM_SE
         }
     }
 }
 
-
-int main() {
+INICIO
     abcdef();
-    printf("\n\n");
+    ESCREVA_FMT("\n\n");
 
     numbers();
-    printf("\n\n");
+    ESCREVA_FMT("\n\n");
 
     diamond();
-    printf("\n\n");
+    ESCREVA_FMT("\n\n");
 
-    return 0;
-}
+    RETORNE 0;
+FIM
