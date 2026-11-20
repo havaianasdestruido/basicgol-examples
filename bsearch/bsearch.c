@@ -5,120 +5,123 @@ Give a word, write a function to determine if the word is a valid English word.
 This program compares the runtime performance of linear search vs binary search.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+#include <basicgol.h>
 
 #define DEBUG 1
 
 // TODO Determine these dynamically
-const int FILE_SIZE = 4235000;
-const int NUM_WORDS = 370105; 
+const INTEIRO FILE_SIZE = 4235000;
+const INTEIRO NUM_WORDS = 370105;
 
-char ** load_dict(char *filename) {
+FUNCAO CARACTERE ** load_dict(CARACTERE *filename) {
+    INTEIRO i;
     FILE *fp = fopen(filename, "r");
-    if (fp == NULL) {
-        printf("Error: Unable to open data file.\n");
-        fclose(fp);
-        return NULL;
-    }
+    SE fp == NULL ENTAO
+        ESCREVAL("Error: Unable to open data file.");
+        RETORNE NULL;
+    FIM_SE
 
-    char *buffer = malloc(FILE_SIZE);
-    if (!buffer) {
-        printf("Error: Allocation failed for file buffer.\n");
+    CARACTERE *buffer = malloc(FILE_SIZE);
+    SE NAO buffer ENTAO
+        ESCREVAL("Error: Allocation failed for file buffer.");
         fclose(fp);
-        return NULL;
-    }
+        RETORNE NULL;
+    FIM_SE
 
-    int bytes_read = fread(buffer, 1, FILE_SIZE, fp);
+    INTEIRO bytes_read = fread(buffer, 1, FILE_SIZE, fp);
     buffer[bytes_read] = '\0';
     fclose(fp);
 
-    char **words = malloc(NUM_WORDS * sizeof(char *));
-    if (!words) {
-        printf("Error: Allocation failed for word pointers.\n");
+    CARACTERE **words = malloc(NUM_WORDS * sizeof(CARACTERE *));
+    SE NAO words ENTAO
+        ESCREVAL("Error: Allocation failed for word pointers.");
         free(buffer);
-        return NULL;
-    }
+        RETORNE NULL;
+    FIM_SE
 
-    int curr = 0;
+    INTEIRO curr = 0;
     words[curr++] = buffer;
-    for (int i = 0; i < bytes_read; i++) {
-        if (buffer[i] == '\n') {
+    PARA(i, 0, bytes_read - 1) {
+        SE buffer[i] == '\n' ENTAO
             buffer[i] = '\0';
-            if (i + 1 < bytes_read && buffer[i + 1] != '\0') {
+            SE i + 1 < bytes_read E buffer[i + 1] != '\0' ENTAO
                 words[curr++] = &buffer[i + 1];
-            }
-        }
+            FIM_SE
+        FIM_SE
     }
 
     #if DEBUG
-    printf("Successfully loaded %d words!\n", NUM_WORDS);
-    printf("First word: %s\n", words[0]);
-    printf("Last word: %s\n", words[NUM_WORDS - 1]);
+    ESCREVA_FMT("Successfully loaded %d words!\n", NUM_WORDS);
+    ESCREVA_FMT("First word: %s\n", words[0]);
+    ESCREVA_FMT("Last word: %s\n", words[NUM_WORDS - 1]);
     #endif
 
-    return words;
+    RETORNE words;
 }
 
-bool linear_search(char **words, char *word) {
-    for (int i = 0; i < NUM_WORDS; i++) {
-        if (strcmp(words[i], word)==0) {
-            printf("Linear search: found word in %d iterations.\n", i+1);
-            return true;
-        }
+FUNCAO LOGICO linear_search(CARACTERE **words, CARACTERE *word) {
+    INTEIRO i;
+    PARA(i, 0, NUM_WORDS - 1) {
+        SE strcmp(words[i], word)==0 ENTAO
+            ESCREVA_FMT("Linear search: found word in %d iterations.\n", i+1);
+            RETORNE VERDADEIRO;
+        FIM_SE
     }
-    return false;
+    RETORNE FALSO;
 }
 
-bool binary_search(char **words, char *word) {
-    int i = 0;
-    int old_pivot = -1, pivot = NUM_WORDS >> 1;
-    int step = pivot;
-    while (pivot >= 0 && pivot < NUM_WORDS) {
+FUNCAO LOGICO binary_search(CARACTERE **words, CARACTERE *word) {
+    INTEIRO i = 0;
+    INTEIRO old_pivot = -1, pivot = NUM_WORDS >> 1;
+    INTEIRO step = pivot;
+    ENQUANTO pivot >= 0 E pivot < NUM_WORDS FACA
         i++;
-        int comp_res = strcmp(words[pivot], word);
-        if (comp_res == 0) {
-            printf("Binary search: found word in %d iterations.\n", i);
-            return true;
-        }
+        INTEIRO comp_res = strcmp(words[pivot], word);
+        SE comp_res == 0 ENTAO
+            ESCREVA_FMT("Binary search: found word in %d iterations.\n", i);
+            RETORNE VERDADEIRO;
+        FIM_SE
         step = step > 1 ? (step + 1) >> 1 : 1;
-        if (step == 1) {
+        SE step == 1 ENTAO
             // Searched two adjacent words and didn't find a match
-            if ((comp_res < 0 && pivot + 1 == old_pivot) || 
-                (comp_res > 0 && pivot - 1 == old_pivot)) {
-                break; 
-            }
-        }
+            SE (comp_res < 0 E pivot + 1 == old_pivot) OU
+                (comp_res > 0 E pivot - 1 == old_pivot) ENTAO
+                PARE;
+            FIM_SE
+        FIM_SE
         old_pivot = pivot;
-        if (comp_res < 0) pivot += step;
-        else if (comp_res > 0) pivot -= step;
-    }
-    return false;
+        SE comp_res < 0 ENTAO
+            pivot += step;
+        SENAO_SE comp_res > 0 ENTAO
+            pivot -= step;
+        FIM_SE
+    FIM_ENQUANTO
+    RETORNE FALSO;
 }
 
-bool is_in_dict(char **words, char *word, bool (*search)(char **, char *)) {
-    bool found = search(words, word);
-    if (!found) printf("Did not find a match in the dictionary.\n");
-    return found;
+FUNCAO LOGICO is_in_dict(CARACTERE **words, CARACTERE *word, LOGICO (*search)(CARACTERE **, CARACTERE *)) {
+    LOGICO found = search(words, word);
+    SE NAO found ENTAO
+        ESCREVAL("Did not find a match in the dictionary.");
+    FIM_SE
+    RETORNE found;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Error: expecting exactly 1 program argument.\n");
-        return 1;
-    }
-    char *word = argv[1];
+FUNCAO INTEIRO main(INTEIRO argc, CARACTERE *argv[]) {
+    SE argc != 2 ENTAO
+        ESCREVAL("Error: expecting exactly 1 program argument.");
+        RETORNE 1;
+    FIM_SE
+    CARACTERE *word = argv[1];
 
     // Already downloaded, sorted and saved to the local system
-    char **words = load_dict("sorted_words_alpha.txt");
-    if (!words) {
-        return 2;
-    }
+    CARACTERE **words = load_dict("sorted_words_alpha.txt");
+    SE NAO words ENTAO
+        RETORNE 2;
+    FIM_SE
 
     is_in_dict(words, word, linear_search);
     is_in_dict(words, word, binary_search);
 
-    return 0;
+    RETORNE 0;
 }

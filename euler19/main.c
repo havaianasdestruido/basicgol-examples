@@ -4,13 +4,9 @@ See https://projecteuler.net/problem=19
 Expected answer is 171.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+#include <basicgol.h>
 
-
-typedef enum {
+ENUMERACAO(DayOfWeek)
     Sunday = 0,
     Monday,
     Tuesday,
@@ -19,35 +15,40 @@ typedef enum {
     Friday,
     Saturday,
     NumOfDays
-} DayOfWeek;
+FIM_ENUMERACAO(DayOfWeek);
 
-
-bool is_leap_year(int year) {
-    if (year % 400 == 0) return true;
-    if (year % 100 == 0) return false;
-    if (year % 4 == 0) return true;
+FUNCAO LOGICO is_leap_year(INTEIRO year) {
+    SE year % 400 == 0 ENTAO
+        RETORNE VERDADEIRO;
+    FIM_SE
+    SE year % 100 == 0 ENTAO
+        RETORNE FALSO;
+    FIM_SE
+    RETORNE year MOD 4 == 0;
 }
 
-
-int main() {
-    int days_in_month[12] = { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-    int num_sunday_start = 0;
+INICIO
+    INTEIRO year, i, j;
+    INTEIRO days_in_month[12] = { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    INTEIRO num_sunday_start = 0;
 
     // 1-Jan-1900 is Monday, find day on 1-Jan-1901
     // 1900 is not a leap year, hence add only 365
     DayOfWeek today = (Monday + 365) % NumOfDays;
 
-    for (int year = 1901; year <= 2000; year++) {
+    PARA(year, 1901, 2000) {
         days_in_month[1] = is_leap_year(year) ? 29 : 28;
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < days_in_month[i]; j++) {
-                if (j == 0 && today == Sunday) num_sunday_start++;
+        PARA(i, 0, 11) {
+            PARA(j, 0, days_in_month[i] - 1) {
+                SE j == 0 E today == Sunday ENTAO
+                    num_sunday_start++;
+                FIM_SE
                 today = (today + 1) % NumOfDays;
             }
         }
     }
 
-    printf("%d", num_sunday_start);
+    ESCREVA_FMT("%d", num_sunday_start);
 
-    return 0;
-}
+    RETORNE 0;
+FIM

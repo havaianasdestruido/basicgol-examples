@@ -1,25 +1,24 @@
 /*
 We take an array of integers, and remove the duplicates in the array.
 We shift the unique values to the left and return the number of unique elements.
-For example, if array is 
-{1, 5, 3, 4, 5, 6, 6, 6, 9, 1} it should become 
+For example, if array is
+{1, 5, 3, 4, 5, 6, 6, 6, 9, 1} it should become
 {1, 5, 3, 4, 6, 9, x, x, x, x} and function should return 6. x is undefined.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <basicgol.h>
 
-int nodup(int *arr, int len) {
-    int num_dups = 0;
-    for (int i = 0; i < len-num_dups; i++) {
+FUNCAO INTEIRO nodup(INTEIRO *arr, INTEIRO len) {
+    INTEIRO i, j;
+    INTEIRO num_dups = 0;
+    PARA(i, 0, len-num_dups - 1) {
         // Search to the left previous unique values
-        for (int j = 0; j < i; j++) {
-            if (arr[j] == arr[i]) {
+        PARA(j, 0, i - 1) {
+            SE arr[j] == arr[i] ENTAO
                 num_dups++;
 
-                // Shift values from the right 
-                for(int k = i; k < len; k++) {
+                // Shift values from the right
+                for(INTEIRO k = i; k < len; k++) {
                     arr[k] = arr[k+1];
                 }
 
@@ -27,17 +26,18 @@ int nodup(int *arr, int len) {
                 // need to process this position again
                 i--;
 
-                break; // since duplicate already found
-            }     
+                PARE; // since duplicate already found
+            FIM_SE
         }
     }
-    return len - num_dups;
+    RETORNE len - num_dups;
 }
 
-int main() {
-    int arr[] = {1, 5, 3, 4, 5, 6, 6, 6, 7, 6, 6, 6, 9, 1};
-    int len = sizeof(arr)/sizeof(int);
-    int num_uniq = nodup(arr, len);
-    printf("Length of array without duplicates is %d\n", num_uniq);
-    for (int i = 0; i < num_uniq; i++) printf("%d ", arr[i]);
-}
+INICIO
+    INTEIRO i;
+    INTEIRO arr[] = {1, 5, 3, 4, 5, 6, 6, 6, 7, 6, 6, 6, 9, 1};
+    INTEIRO len = TAMANHO_VETOR(arr);
+    INTEIRO num_uniq = nodup(arr, len);
+    ESCREVA_FMT("Length of array without duplicates is %d\n", num_uniq);
+    PARA(i, 0, num_uniq - 1) ESCREVA_FMT("%d ", arr[i]);
+FIM

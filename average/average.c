@@ -1,18 +1,17 @@
-#include <stdio.h>
-#include <math.h>
+#include <basicgol.h>
 
-double average(unsigned int arr[], unsigned int n) { // unsigned int *arr
-    double sum = 0;
+FUNCAO REAL average(NATURAL arr[], NATURAL n) { // unsigned int *arr
+    REAL sum = 0;
 
-    for (int i = 0; i < n; i++) {
+    for (INTEIRO i = 0; i < n; i++) {
         sum += arr[i]; // *(arr+i)
     }
 
-    return sum / n;
+    RETORNE sum / n;
 }
 
-int main() {
-    unsigned int scores[] = { 67, 55, 89, 77, 60, 72, 84, 63, 91, 59 };
-    double mean = average(scores, sizeof(scores) / sizeof(unsigned int));
-    printf("%.3g", mean);
-}
+INICIO
+    NATURAL scores[] = { 67, 55, 89, 77, 60, 72, 84, 63, 91, 59 };
+    REAL mean = average(scores, TAMANHO_VETOR(scores));
+    ESCREVA_FMT("%.3g", mean);
+FIM

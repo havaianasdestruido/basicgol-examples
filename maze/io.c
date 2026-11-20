@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <basicgol.h>
 #include "maze.h"
 #include "io.h"
 #include "solver.h"
@@ -7,24 +6,26 @@
 /**
  * @brief Calculates the number of columns in the maze from the input file.
  *
- * Scans the first line of the file to determine the width of the maze 
+ * Scans the first line of the file to determine the width of the maze
  * based on the character pattern.
  *
  * @param[in] fp Pointer to the opened file stream.
  * @return The total number of columns found.
  */
-int get_num_cols(FILE *fp) {
-    int num_corners = 0;
+FUNCAO INTEIRO get_num_cols(FILE *fp) {
+    INTEIRO num_corners = 0;
 
-    int ch; // fgetc() returns int and EOF is int
-    while ((ch = fgetc(fp)) != '\n' && ch != EOF) {
-        if (ch == '+') num_corners++;
-    }
+    INTEIRO ch; // fgetc() returns int and EOF is int
+    ENQUANTO (ch = fgetc(fp)) != '\n' E ch != EOF FACA
+        SE ch == '+' ENTAO
+            num_corners++;
+        FIM_SE
+    FIM_ENQUANTO
 
     // Reset fp to start
     fseek(fp, 0, SEEK_SET);
 
-    return num_corners - 1;
+    RETORNE num_corners - 1;
 }
 
 /**
@@ -35,64 +36,66 @@ int get_num_cols(FILE *fp) {
  * @param[in] fp Pointer to the opened file stream.
  * @return The total number of rows found.
  */
-int get_num_rows(FILE *fp) {
-    int num_lines = 0;
+FUNCAO INTEIRO get_num_rows(FILE *fp) {
+    INTEIRO num_lines = 0;
 
-    char line[200]; // an arbitrary limit
-    while (fgets(line, 200, fp) != NULL) {
+    CARACTERE line[200]; // an arbitrary limit
+    ENQUANTO fgets(line, 200, fp) != NULL FACA
         num_lines++;
-    }
+    FIM_ENQUANTO
 
     // Reset fp to start
     fseek(fp, 0, SEEK_SET);
 
-    return (num_lines - 1) / 2;
+    RETORNE (num_lines - 1) / 2;
 }
 
 /* Implementation as declared in io.h */
-void read_maze_from_file(Maze *maze, char *filename) {
+PROCEDIMENTO read_maze_from_file(Maze *maze, CARACTERE *filename) {
+    INTEIRO i;
     FILE *fp = fopen(filename, "r");
-    if (fp == NULL) {
-        printf("Error: unable to open maze file %s. Quitting...\n", filename);
+    SE fp == NULL ENTAO
+        ESCREVA_FMT("Error: unable to open maze file %s. Quitting...\n", filename);
         exit(1);
-    }
+    FIM_SE
 
     maze->num_cols = get_num_cols(fp);
     maze->num_rows = get_num_rows(fp);
 
     create_maze(maze);
 
-    char (*lines)[maze->line_len] = (char (*)[maze->line_len])maze->lines;
-    for (int i = 0; i < maze->num_lines; i++) {
-        if (fgets(lines[i], maze->line_len, fp) == NULL) {
+    CARACTERE (*lines)[maze->line_len] = (CARACTERE (*)[maze->line_len])maze->lines;
+    PARA(i, 0, maze->num_lines - 1) {
+        SE fgets(lines[i], maze->line_len, fp) == NULL ENTAO
             lines[i][0] = '\0';
-        }
+        FIM_SE
     }
 
     fclose(fp);
 }
 
 /* Implementation as declared in io.h */
-void encode_maze(Maze *maze) {
-    char (*lines)[maze->line_len] = (char (*)[maze->line_len])maze->lines;
-    char (*m)[maze->num_cols] = (char (*)[maze->num_cols])maze->m;
+PROCEDIMENTO encode_maze(Maze *maze) {
+    INTEIRO r, c;
+    CARACTERE (*lines)[maze->line_len] = (CARACTERE (*)[maze->line_len])maze->lines;
+    CARACTERE (*m)[maze->num_cols] = (CARACTERE (*)[maze->num_cols])maze->m;
 
-    for (int r = 0; r < maze->num_rows; r++) {
-        for (int c = 0; c < maze->num_cols; c++) {
-            char cell_val = 0;
+    PARA(r, 0, maze->num_rows - 1) {
+        PARA(c, 0, maze->num_cols - 1) {
+            CARACTERE cell_val = 0;
 
-            if (lines[2 * r][4 * c + 1] == '-') {
+            SE lines[2 * r][4 * c + 1] == '-' ENTAO
                 cell_val |= North;
-            }
-            if (lines[2 * r + 1][4 * c + 4] == '|') {
+            FIM_SE
+            SE lines[2 * r + 1][4 * c + 4] == '|' ENTAO
                 cell_val |= East;
-            }
-            if (lines[2 * r + 2][4 * c + 1] == '-') {
+            FIM_SE
+            SE lines[2 * r + 2][4 * c + 1] == '-' ENTAO
                 cell_val |= South;
-            }
-            if (lines[2 * r + 1][4 * c] == '|') {
+            FIM_SE
+            SE lines[2 * r + 1][4 * c] == '|' ENTAO
                 cell_val |= West;
-            }
+            FIM_SE
 
             m[r][c] = cell_val;
         }
@@ -100,67 +103,72 @@ void encode_maze(Maze *maze) {
 }
 
 /* Implementation as declared in io.h */
-void print_encoded_maze(Maze *maze) {
-    for (int i = 0; i < maze->num_rows; i++) {
-        for (int j = 0; j < maze->num_cols; j++) {
-            printf("0x%02X", (unsigned char)maze->m[i*maze->num_cols + j]);
-            if (j == maze->num_cols-1) printf("\n");
-            else printf(" ");
+PROCEDIMENTO print_encoded_maze(Maze *maze) {
+    INTEIRO i, j;
+    PARA(i, 0, maze->num_rows - 1) {
+        PARA(j, 0, maze->num_cols - 1) {
+            ESCREVA_FMT("0x%02X", (NATURAL8)maze->m[i*maze->num_cols + j]);
+            SE j == maze->num_cols-1 ENTAO
+                ESCREVA_LINHA();
+            SENAO
+                ESCREVA(" ");
+            FIM_SE
         }
     }
 }
 
 /* Implementation as declared in io.h */
-void print_maze(Maze *maze, Path *path) {
-    char (*m)[maze->num_cols] = (char (*)[maze->num_cols])maze->m;
+PROCEDIMENTO print_maze(Maze *maze, Path *path) {
+    INTEIRO r, c;
+    CARACTERE (*m)[maze->num_cols] = (CARACTERE (*)[maze->num_cols])maze->m;
 
-    for (int r = 0; r < maze->num_rows; r++) {
-        
+    PARA(r, 0, maze->num_rows - 1) {
+
         // --- 1. Print the North Walls Row ---
-        for (int c = 0; c < maze->num_cols; c++) {
-            printf("+");
-            if (m[r][c] & North) {
-                printf("---");
-            } else {
-                printf("   ");
-            }
+        PARA(c, 0, maze->num_cols - 1) {
+            ESCREVA("+");
+            SE m[r][c] & North ENTAO
+                ESCREVA("---");
+            SENAO
+                ESCREVA("   ");
+            FIM_SE
         }
         // Caps off the right side of the North boundary row
-        printf("+\n");
+        ESCREVAL("+");
 
         // --- 2. Print the Cell Middle Row (West wall, Space/*, East wall) ---
-        for (int c = 0; c < maze->num_cols; c++) {
+        PARA(c, 0, maze->num_cols - 1) {
             // Print the West wall of the cell
-            if (m[r][c] & West) {
-                printf("|");
-            } else {
-                printf(" ");
-            }
+            SE m[r][c] & West ENTAO
+                ESCREVA("|");
+            SENAO
+                ESCREVA(" ");
+            FIM_SE
 
             // Print the cell interior center (Path marker '*' or empty space)
-            if (is_on_path(r, c, path)) {
-                printf(" * ");
-            } else {
-                printf("   ");
-            }
+            SE is_on_path(r, c, path) ENTAO
+                ESCREVA(" * ");
+            SENAO
+                ESCREVA("   ");
+            FIM_SE
         }
         // Caps off the very last East wall of the current row
-        if (m[r][maze->num_cols - 1] & East) {
-            printf("|\n");
-        } else {
-            printf(" \n");
-        }
+        SE m[r][maze->num_cols - 1] & East ENTAO
+            ESCREVAL("|");
+        SENAO
+            ESCREVAL(" ");
+        FIM_SE
     }
 
     // --- 3. Print the Final South Wall Row ---
     // The bottom-most outer border needs to be closed out cleanly
-    for (int c = 0; c < maze->num_cols; c++) {
-        printf("+");
-        if (m[maze->num_rows - 1][c] & South) {
-            printf("---");
-        } else {
-            printf("   ");
-        }
+    PARA(c, 0, maze->num_cols - 1) {
+        ESCREVA("+");
+        SE m[maze->num_rows - 1][c] & South ENTAO
+            ESCREVA("---");
+        SENAO
+            ESCREVA("   ");
+        FIM_SE
     }
-    printf("+\n");
+    ESCREVAL("+");
 }

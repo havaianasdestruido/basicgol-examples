@@ -1,34 +1,34 @@
 #ifndef MAZE_H
 #define MAZE_H
 
-#include <stdbool.h>
+#include <basicgol.h>
 
-typedef enum direction {
+ENUMERACAO(Direction)
     North = 1,
     East = 2,
     South = 4,
     West = 8
-} Direction;
+FIM_ENUMERACAO(Direction);
 
-typedef struct cell {
-    int x;
-    int y;
-} Cell;
+REGISTRO(Cell)
+    INTEIRO x;
+    INTEIRO y;
+FIM_REGISTRO(Cell);
 
-typedef struct maze {
-    int num_rows;
-    int num_cols;
-    int num_lines;
-    int line_len;
-    char *lines; // as stored in file
-    char *m; // as encoded in memory
-} Maze;
+REGISTRO(Maze)
+    INTEIRO num_rows;
+    INTEIRO num_cols;
+    INTEIRO num_lines;
+    INTEIRO line_len;
+    CARACTERE *lines; // as stored in file
+    CARACTERE *m; // as encoded in memory
+FIM_REGISTRO(Maze);
 
-typedef struct path {
-    bool found_path;
-    int num_steps; // indexes into cells
+REGISTRO(Path)
+    LOGICO found_path;
+    INTEIRO num_steps; // indexes into cells
     Cell *cells;
-} Path;
+FIM_REGISTRO(Path);
 
 // ------------------------------------------
 // Lifecycle management
@@ -42,16 +42,16 @@ typedef struct path {
  *
  * @param[in,out] maze Pointer to the Maze struct to be deallocated.
  */
-void create_maze(Maze *maze);
+PROCEDIMENTO create_maze(Maze *maze);
 
 /**
  * @brief Frees all dynamically allocated memory associated with the Maze structure.
  *
- * This function cleans up the row string buffers (`lines`) and the flattened 
+ * This function cleans up the row string buffers (`lines`) and the flattened
  * encoded grid (`m`), resetting the maze pointer to prevent memory leaks.
  *
  * @param[in,out] maze Pointer to the Maze struct to be deallocated.
  */
-void free_maze(Maze *maze);
+PROCEDIMENTO free_maze(Maze *maze);
 
 #endif // MAZE_H

@@ -13,20 +13,18 @@ space before encoding.
 While decoding, all letters are output in uppercase.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <basicgol.h>
+
 #include <ctype.h>
 
-
-char * digits[] = {
+CARACTERE * digits[] = {
     // 0        1        2        3        4
     "-----", ".----", "..---", "...--", "....-",
     // 5        6        7        8        9
     ".....", "-....", "--...", "---..", "----."
 };
 
-char * letters[] = {
+CARACTERE * letters[] = {
     // A      B       C       D      E
     ".-",   "-...", "-.-.", "-..",  ".",
     // F      G       H       I      J
@@ -41,87 +39,85 @@ char * letters[] = {
     "--.."
 };
 
-char search(char * needle, char * haystack[], int size, char start) {
-    for (int i = 0; i < size; i++) {
-        if (strcmp(needle, haystack[i]) == 0) return start + i;
+FUNCAO CARACTERE search(CARACTERE * needle, CARACTERE * haystack[], INTEIRO size, CARACTERE start) {
+    INTEIRO i;
+    PARA(i, 0, size - 1) {
+        SE strcmp(needle, haystack[i]) == 0 ENTAO
+            RETORNE start + i;
+        FIM_SE
     }
-    return '\0';
+    RETORNE '\0';
 }
 
-char * decoder(char const * enc_msg) {
-    char * decoded_msg = calloc(strlen(enc_msg), sizeof(char));
+FUNCAO CARACTERE * decoder(CARACTERE const * enc_msg) {
+    CARACTERE * decoded_msg = calloc(strlen(enc_msg), sizeof(CARACTERE));
 
     // Each character can be at most 5 dots or dashes plus NUL character
-    char curr_symbol[5+1] = {};
+    CARACTERE curr_symbol[5+1] = {0};
 
-    int num_spaces = 0;
-    char curr_char;
-    char dec_char;
-    for (int i = 0; i < strlen(enc_msg); i++) {
+    INTEIRO num_spaces = 0;
+    CARACTERE curr_char;
+    CARACTERE dec_char;
+    for (INTEIRO i = 0; i < strlen(enc_msg); i++) {
         curr_char = enc_msg[i];
-        if (curr_char == ' ') {
+        SE curr_char == ' ' ENTAO
             num_spaces++;
-            if (num_spaces == 3) { // three spaces => word boundary
+            SE num_spaces == 3 ENTAO // three spaces => word boundary
                 dec_char = ' ';
-            }
-            else if (strlen(curr_symbol) == 5) { // digit
-                dec_char = search(curr_symbol, digits, sizeof(digits) / sizeof(char*), '0');
-            }
-            else { // letter
-                dec_char = search(curr_symbol, letters, sizeof(letters) / sizeof(char*), 'A');
-            }
+            SENAO_SE strlen(curr_symbol) == 5 ENTAO // digit
+                dec_char = search(curr_symbol, digits, TAMANHO_VETOR(digits), '0');
+            SENAO // letter
+                dec_char = search(curr_symbol, letters, TAMANHO_VETOR(letters), 'A');
+            FIM_SE
             decoded_msg[strlen(decoded_msg)] = dec_char;
             memset(curr_symbol, 0, sizeof(curr_symbol)); // reset to receive next symbol
-        }
-        else {
+        SENAO
             num_spaces = 0;
             curr_symbol[strlen(curr_symbol)] = curr_char;
-        }
+        FIM_SE
     }
 
-    return decoded_msg;
+    RETORNE decoded_msg;
 }
 
-char * encoder(char const * msg) {
+FUNCAO CARACTERE * encoder(CARACTERE const * msg) {
     // Each character can be at most 5 dots or dashes plus a space
-    char * encoded_msg = malloc(strlen(msg)*5 + 1);
+    CARACTERE * encoded_msg = malloc(strlen(msg)*5 + 1);
     encoded_msg[0] = '\0';
 
-    char curr_char, prev_char = '\0';
-    for (int i = 0; i < strlen(msg); i++) {
+    CARACTERE curr_char, prev_char = '\0';
+    for (INTEIRO i = 0; i < strlen(msg); i++) {
         curr_char = msg[i];
-        if (isalpha(curr_char)) {
-            int idx = toupper(curr_char) - 'A';
+        SE isalpha(curr_char) ENTAO
+            INTEIRO idx = toupper(curr_char) - 'A';
             strcat(encoded_msg, letters[idx]);
             strcat(encoded_msg, " ");
-        }
-        else if (isdigit(curr_char)) {
-            int idx = curr_char - '0';
+        SENAO_SE isdigit(curr_char) ENTAO
+            INTEIRO idx = curr_char - '0';
             strcat(encoded_msg, digits[idx]);
             strcat(encoded_msg, " ");
-        }
-        else {
+        SENAO
             curr_char = ' ';
-            if (curr_char == ' ' && prev_char != ' ') {
+            SE curr_char == ' ' E prev_char != ' ' ENTAO
                 strcat(encoded_msg, "  ");
-            }
-        }
+            FIM_SE
+        FIM_SE
         prev_char = curr_char;
     }
 
-    return encoded_msg;
+    RETORNE encoded_msg;
 }
 
-int main() {
-    char msg[]  = {
+INICIO
+    CARACTERE msg[]  = {
         "Lorem's Ipsum is simply, dummy text of the printing and typesetting industry."
     };
 
-    char * enc_msg = encoder(msg);
-    printf("Encoded message: %s\n", enc_msg);
+    CARACTERE * enc_msg = encoder(msg);
+    ESCREVA_FMT("Encoded message: %s\n", enc_msg);
 
-    char * dec_msg = decoder(enc_msg);
-    printf("Decoded message: %s\n", dec_msg);
+    CARACTERE * dec_msg = decoder(enc_msg);
+    ESCREVA_FMT("Decoded message: %s\n", dec_msg);
 
-    return 0;
-}
+    RETORNE 0;
+FIM

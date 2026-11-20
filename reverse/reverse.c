@@ -4,26 +4,26 @@ in the location of the original string.
 For example, if string is "ABCD EFG" it should become "GFE DCBA".
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <basicgol.h>
 
-void reverse(char *data) {
-    int len = strlen(data);
+PROCEDIMENTO reverse(CARACTERE *data) {
+    INTEIRO i;
+    INTEIRO len = strlen(data);
 
     // Works for both odd and even len
-    for (int i = 0; i < len/2; i++) {
-        char temp = data[i];
+    PARA(i, 0, len/2 - 1) {
+        CARACTERE temp = data[i];
         data[i] = data[len - i - 1];
         data[len - i - 1] = temp;
     }
 }
 
-int main() {
-    char data[] = "HelloWorld";
+INICIO
+    CARACTERE data[] = "HelloWorld";
 
-    printf("Original: %s\n", data);
+    ESCREVA_FMT("Original: %s\n", data);
     reverse(data);
-    printf("Reversed: %s\n", data);
+    ESCREVA_FMT("Reversed: %s\n", data);
 
-    return 0;
-}
+    RETORNE 0;
+FIM
